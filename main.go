@@ -1,40 +1,42 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/Ccj-pro/admin_server/config"
+	"github.com/Ccj-pro/admin_server/public/common"
+	"github.com/Ccj-pro/admin_server/routes"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	// 创建一个默认的 Gin 路由器
-	r := gin.Default()
 
-	// 设置一个简单的 GET 路由
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	// 加载配置文件到全局配置结构体
+	config.InitConfig()
 
-	// 设置一个 POST 路由来接收 JSON 数据
-	r.POST("/user", func(c *gin.Context) {
-		var json struct {
-			Name string `json:"name" binding:"required"`
-			Age  int    `json:"age" binding:"required"`
-		}
+	// 初始化日志
+	common.InitLogger()
 
-		if err := c.ShouldBindJSON(&json); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+	// 初始化数据库(mysql)
+	common.InitDB()
 
-		c.JSON(http.StatusOK, gin.H{
-			"name": json.Name,
-			"age":  json.Age,
-		})
-	})
+	// 注册所有路由
+	r := routes.InitRoutes()
 
-	// 启动 HTTP 服务，监听默认端口8080
-	r.Run("localhost:8880")
+	host := "0.0.0.0"
+	port := config.Conf.System.Port
+
+	srv := &http.Server{
+		Addr:    fmt.Sprintf("%s:%d", host, port),
+		Handler: r,
+	}
+
+	// go func() {
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		common.Log.Fatalf("listen: %s\n", err)
+	}
+	// }()
+
+	common.Log.Info(fmt.Sprintf("Server is running at http://%s:%d", host, port))
 }

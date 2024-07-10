@@ -18,7 +18,7 @@ type User struct {
 	Introduction  string  `gorm:"type:varchar(255);comment:'个人简介'" json:"introduction"`                              // 个人简介
 	Status        uint    `gorm:"type:tinyint(1);default:1;comment:'状态:1在职, 2离职'" json:"status"`                     // 状态
 	Creator       string  `gorm:"type:varchar(20);;comment:'创建者'" json:"creator"`                                    // 创建者
-	Source        string  `gorm:"type:varchar(50);comment:'用户来源：dingTalk、wecom、feishu、ldap、platform'" json:"source"` // 来源
+	Source        string  `gorm:"type:varchar(50);comment:'用户来源:dingTalk、wecom、feishu、ldap、platform'" json:"source"` // 来源
 	DepartmentId  string  `gorm:"type:varchar(100);not null;comment:'部门id'" json:"departmentId"`                     // 部门id
 	Roles         []*Role `gorm:"many2many:user_roles" json:"roles"`                                                 // 角色
 	SourceUserId  string  `gorm:"type:varchar(100);not null;comment:'第三方用户id'" json:"sourceUserId"`                  // 第三方用户id
